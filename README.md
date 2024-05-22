@@ -103,7 +103,8 @@ Folgende Fragen sind dazu interessant (etwa über eine Zeitdauer von 80 Stunden)
   4. Erweiterungen:
 
     Variierende Passagierströme: 
-    Modellierung von Stoßzeiten und ruhigeren Zeiten, um die Auslastung des Busses und die Wartezeiten realistischer zu gestalten.
+    Modellierung von Stoßzeiten und ruhigeren Zeiten,
+    um die Auslastung des Busses und die Wartezeiten realistischer zu gestalten.
     
     Zusätzliche Ressourcen: 
     Einbindung von mehreren Bussen oder zusätzlichen Terminals.

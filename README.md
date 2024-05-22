@@ -39,39 +39,74 @@ Folgende Fragen sind dazu interessant (etwa über eine Zeitdauer von 80 Stunden)
 
   1. Ziel der Simulation:
   
-    Ziel der Simulation ist es, den Betrieb einer Autovermietungsstation am Flughafen mit zwei Terminals und einem Bus, der zwischen diesen Punkten verkehrt, zu simulieren. Es sollen verschiedene Metriken wie Wartezeiten, Anzahl der Passagiere in den Warteschlangen und im Bus, sowie die Dauer einer Busrunde ermittelt werden.
+    Ziel der Simulation ist es, den Betrieb einer Autovermietungsstation am Flughafen mit zwei Terminals und einem Bus, der zwischen diesen Punkten verkehrt, zu simulieren.
+    Es sollen verschiedene Metriken wie Wartezeiten, Anzahl der Passagiere in den Warteschlangen und im Bus, sowie die Dauer einer Busrunde ermittelt werden.
 
   2. Offene Fragen und Details:
 
-    Ankunftsverteilung der Passagiere: Wie ist die Ankunftsrate der Passagiere an den Terminals und der Rückgabestation? Ist diese konstant, oder unterliegt sie einer bestimmten Verteilung (z.B. Poisson-Verteilung)?
-    Fahrzeit des Busses zwischen den Stationen: Gibt es feste Fahrzeiten zwischen den Stationen oder variieren diese zufällig innerhalb eines bestimmten Bereichs?
-    Verhalten der Passagiere: Wie verhalten sich die Passagiere, wenn der Bus voll ist? Warten sie einfach auf den nächsten Bus?
-    Abfahrtszeiten des Busses: Fährt der Bus nach 5 Minuten ab, auch wenn noch Passagiere in der Warteschlange stehen? Oder bleibt er länger, bis alle eingestiegen sind?
+    Ankunftsverteilung der Passagiere:
+    Wie ist die Ankunftsrate der Passagiere an den Terminals und der Rückgabestation? 
+    Ist diese konstant, oder unterliegt sie einer bestimmten Verteilung (z.B. Poisson-Verteilung)?
+    
+    Fahrzeit des Busses zwischen den Stationen:
+    Gibt es feste Fahrzeiten zwischen den Stationen oder variieren diese zufällig innerhalb eines bestimmten Bereichs?
+    
+    Verhalten der Passagiere:
+    Wie verhalten sich die Passagiere, wenn der Bus voll ist? 
+    Warten sie einfach auf den nächsten Bus?
+    
+    Abfahrtszeiten des Busses:
+    Fährt der Bus nach 5 Minuten ab, auch wenn noch Passagiere in der Warteschlange stehen?
+    Oder bleibt er länger, bis alle eingestiegen sind?
 
   3. Gedanken zum Modellierungsstil:
 
-    Prozessorientierte Modellierung: In diesem Ansatz modellieren wir den Ablauf aus Sicht der einzelnen Prozesse. Hier werden die Aktivitäten der Passagiere und des Busses als Prozesse betrachtet, die über die Zeit ablaufen.
-    Vorteile: Intuitive Modellierung: Der prozessorientierte Ansatz ist oft intuitiver, da er sich auf die Prozesse konzentriert, die im System ablaufen. Dies entspricht häufig dem natürlichen Verständnis des Systems.
-    Klarheit der Abläufe: Prozesse werden klar definiert und deren Abläufe sind gut nachvollziehbar.
-    Nachteile: Komplexität bei vielen Prozessen: Bei einer großen Anzahl von Prozessen kann das Modell komplex und schwer zu verwalten werden. Eventuelle Performance-Einbußen: Kann bei sehr vielen parallelen Prozessen langsamer sein.
+    Prozessorientierte Modellierung:
+    In diesem Ansatz modellieren wir den Ablauf aus Sicht der einzelnen Prozesse.
+    Hier werden die Aktivitäten der Passagiere und des Busses als Prozesse betrachtet, die über die Zeit ablaufen.
+    Vorteile:
+    Intuitive Modellierung:
+    Der prozessorientierte Ansatz ist oft intuitiver, da er sich auf die Prozesse konzentriert, die im System ablaufen.
+    Dies entspricht häufig dem natürlichen Verständnis des Systems.
+    Klarheit der Abläufe: 
+    Prozesse werden klar definiert und deren Abläufe sind gut nachvollziehbar.
     
-    Ereignisorientierte Modellierung: In diesem Ansatz modellieren wir den Ablauf durch Ereignisse, die zu bestimmten Zeitpunkten eintreten. Dies wäre eine alternative Betrachtungsweise, die den Fokus auf die Zustandsänderungen im System legt.
-    Vorteile: Effizienz: Der ereignisorientierte Ansatz ist oft effizienter, da er nur Zustandsänderungen (Ereignisse) behandelt und die Zeiten dazwischen überspringt.
+    Nachteile: 
+    Komplexität bei vielen Prozessen:
+    Bei einer großen Anzahl von Prozessen kann das Modell komplex und schwer zu verwalten werden.
+    Eventuelle Performance-Einbußen: Kann bei sehr vielen parallelen Prozessen langsamer sein.
+    
+    Ereignisorientierte Modellierung:
+    In diesem Ansatz modellieren wir den Ablauf durch Ereignisse, die zu bestimmten Zeitpunkten eintreten.
+    Dies wäre eine alternative Betrachtungsweise, die den Fokus auf die Zustandsänderungen im System legt.
+    Vorteile: Effizienz:
+    Der ereignisorientierte Ansatz ist oft effizienter, da er nur Zustandsänderungen (Ereignisse) behandelt und die Zeiten dazwischen überspringt.
     Skalierbarkeit: Kann besser skalieren, wenn es viele unabhängige Ereignisse gibt.
-    Nachteile: Weniger Intuitiv: Kann weniger intuitiv sein, da der Fokus auf den Ereignissen liegt und nicht auf den durchgehenden Prozessen.
+    Nachteile: Weniger Intuitiv:
+    Kann weniger intuitiv sein, da der Fokus auf den Ereignissen liegt und nicht auf den durchgehenden Prozessen.
     Komplexität der Ereignisbehandlung: Ereignismanagement kann komplex werden, wenn viele unterschiedliche Ereignistypen auftreten.
     
-    Da die Aufgabe eine kontinuierliche Sequenz von Aktionen mit einem klaren Prozessfluss (Passagiere kommen an, steigen in den Bus, fahren zur Mietstation, usw.) erfordert, scheint eine prozessorientierte Simulation geeigneter zu sein. Hier ist der Grund:
-
-    Intuitive Abbildung der Abläufe: Der Ablauf des Systems (Passagiere ankommen, warten, steigen in den Bus ein, fahren zur nächsten Station, usw.) lässt sich gut als Prozess modellieren.
-    Klare Prozessdefinition: Jeder Schritt (z.B. das Einsteigen in den Bus, das Fahren, das Aussteigen) ist ein klar definierter Prozess, was die Modellierung vereinfacht.
-    Fokus auf Prozessabläufe: Die wichtigsten Aspekte der Simulation, wie Wartezeiten und die Anzahl der Passagiere, lassen sich gut durch prozessorientierte Ansätze abbilden.
+    Da die Aufgabe eine kontinuierliche Sequenz von Aktionen mit einem klaren Prozessfluss (Passagiere kommen an, steigen in den Bus, fahren zur Mietstation, usw.) erfordert,
+    scheint eine prozessorientierte Simulation geeigneter zu sein. 
+    
+    Hier ist der Grund:
+    Intuitive Abbildung der Abläufe: 
+    Der Ablauf des Systems (Passagiere ankommen, warten, steigen in den Bus ein, fahren zur nächsten Station, usw.) lässt sich gut als Prozess modellieren.
+    Klare Prozessdefinition: 
+    Jeder Schritt (z.B. das Einsteigen in den Bus, das Fahren, das Aussteigen) ist ein klar definierter Prozess, was die Modellierung vereinfacht.
+    Fokus auf Prozessabläufe: 
+    Die wichtigsten Aspekte der Simulation, wie Wartezeiten und die Anzahl der Passagiere, lassen sich gut durch prozessorientierte Ansätze abbilden.
     
   4. Erweiterungen:
 
-    Variierende Passagierströme: Modellierung von Stoßzeiten und ruhigeren Zeiten, um die Auslastung des Busses und die Wartezeiten realistischer zu gestalten.
-    Zusätzliche Ressourcen: Einbindung von mehreren Bussen oder zusätzlichen Terminals.
-    Unvorhergesehene Ereignisse: Simulation von Störungen wie Busausfällen oder Verspätungen bei Passagieren.
+    Variierende Passagierströme: 
+    Modellierung von Stoßzeiten und ruhigeren Zeiten, um die Auslastung des Busses und die Wartezeiten realistischer zu gestalten.
+    
+    Zusätzliche Ressourcen: 
+    Einbindung von mehreren Bussen oder zusätzlichen Terminals.
+    
+    Unvorhergesehene Ereignisse:
+    Simulation von Störungen wie Busausfällen oder Verspätungen bei Passagieren.
 
 
 Umsetzung der Simulation für die Autovermietung am Flughafen

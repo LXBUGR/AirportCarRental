@@ -39,8 +39,13 @@ Folgende Fragen sind dazu interessant (etwa über eine Zeitdauer von 80 Stunden)
 
   1. Ziel der Simulation:
   
-    Ziel der Simulation ist es, den Betrieb einer Autovermietungsstation am Flughafen mit zwei Terminals und einem Bus, der zwischen diesen Punkten verkehrt, zu simulieren.
-    Es sollen verschiedene Metriken wie Wartezeiten, Anzahl der Passagiere in den Warteschlangen und im Bus, sowie die Dauer einer Busrunde ermittelt werden.
+    Ziel der Simulation ist es,
+    den Betrieb einer Autovermietungsstation am Flughafen mit zwei Terminals und einem Bus,
+    der zwischen diesen Punkten verkehrt, zu simulieren.
+    
+    Es sollen verschiedene Metriken wie Wartezeiten,
+    Anzahl der Passagiere in den Warteschlangen und im Bus,
+    sowie die Dauer einer Busrunde ermittelt werden.
 
   2. Offene Fragen und Details:
 
@@ -70,7 +75,6 @@ Folgende Fragen sind dazu interessant (etwa über eine Zeitdauer von 80 Stunden)
     Dies entspricht häufig dem natürlichen Verständnis des Systems.
     Klarheit der Abläufe: 
     Prozesse werden klar definiert und deren Abläufe sind gut nachvollziehbar.
-    
     Nachteile: 
     Komplexität bei vielen Prozessen:
     Bei einer großen Anzahl von Prozessen kann das Modell komplex und schwer zu verwalten werden.
@@ -89,7 +93,6 @@ Folgende Fragen sind dazu interessant (etwa über eine Zeitdauer von 80 Stunden)
     Da die Aufgabe eine kontinuierliche Sequenz von Aktionen mit einem klaren Prozessfluss (Passagiere kommen an, steigen in den Bus, fahren zur Mietstation, usw.) erfordert,
     scheint eine prozessorientierte Simulation geeigneter zu sein. 
     
-    Hier ist der Grund:
     Intuitive Abbildung der Abläufe: 
     Der Ablauf des Systems (Passagiere ankommen, warten, steigen in den Bus ein, fahren zur nächsten Station, usw.) lässt sich gut als Prozess modellieren.
     Klare Prozessdefinition: 

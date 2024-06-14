@@ -1,7 +1,7 @@
 package airport.entities;
 
-import airport.util.BusSchedule;
-import airport.util.IdManager;
+import airport.BusSchedule;
+import airport.IdManager;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 

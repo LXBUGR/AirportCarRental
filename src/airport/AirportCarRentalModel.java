@@ -1,7 +1,6 @@
 package airport;
 
 import airport.entities.BusEntity;
-import airport.util.IdManager;
 import desmoj.core.simulator.*;
 import desmoj.core.dist.*;
 import airport.entities.CarRentalEntity;

@@ -1,4 +1,4 @@
-package airport.util;
+package airport;
 
 import airport.entities.CarRentalEntity;
 import airport.entities.StationEntity;

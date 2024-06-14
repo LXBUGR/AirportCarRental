@@ -1,4 +1,4 @@
-package airport.util;
+package airport;
 
 import desmoj.core.dist.ContDist;
 import desmoj.core.dist.ContDistNormal;

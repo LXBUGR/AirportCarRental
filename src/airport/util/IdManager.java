@@ -38,17 +38,17 @@ public class IdManager {
     }
 
     //Use when creating Passengers in FlightArrivalEvent
-    public static Integer getRandomTerminalId() {
+    public static int getRandomTerminalId() {
         return random.nextInt(maxIdTerminal - 1) + 1;
     }
 
     //Use when creating Passengers in CarRentalArrivalEvent
-    public static Integer getRandomCarRentalId() {
+    public static int getRandomCarRentalId() {
         return random.nextInt(maxIdCarRental - (maxIdTerminal+1)) + maxIdTerminal + 1;
     }
 
     //Use to retrieve Station object for any given station id
-    public static StationEntity getStation(Integer id) {
+    public static StationEntity getStation(int id) {
         return idToStationMap.get(id);
     }
 }

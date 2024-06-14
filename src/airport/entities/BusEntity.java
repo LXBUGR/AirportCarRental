@@ -10,7 +10,7 @@ import java.util.List;
 
 public class BusEntity extends Entity {
     private final int capacity;
-    private StationEntity currentStation;
+    private int currentStationId;
     private final List<PassengerEntity> passengerList;
 
     //Used to retrieve information on next station and traveltime
@@ -24,19 +24,19 @@ public class BusEntity extends Entity {
     }
 
     public void drive() {
-        currentStation = IdManager.getStation(currentStation.getId());
+        currentStationId = IdManager.getStation(currentStationId).getId();
     }
 
-    public void setCurrentStation(StationEntity station) {
-        this.currentStation = station;
+    public void setCurrentStationId(int stationId) {
+        this.currentStationId = schedule.getNextStationId(currentStationId);
     }
 
     public double getNextStationDriveTime() {
-        return schedule.getNextStationTime(currentStation.getId());
+        return schedule.getNextStationTime(currentStationId);
     }
 
     public double getNextStationId() {
-        return schedule.getNextStationId(currentStation.getId());
+        return schedule.getNextStationId(currentStationId);
     }
 
     public void addPassenger(PassengerEntity passengerEntity) {
@@ -47,7 +47,7 @@ public class BusEntity extends Entity {
 
     public void removePassengers(int destination) {
         passengerList.removeIf(passengerEntity ->
-                passengerEntity.getDestinationId() == currentStation.getId()
+                passengerEntity.getDestinationId() == currentStationId
         );
     }
 

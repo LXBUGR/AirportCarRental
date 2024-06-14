@@ -70,7 +70,7 @@ public class AirportCarRentalModel extends Model {
         IdManager.initializeIds(terminals, carRentals);
 
         bus = new BusEntity(this, "Bus", true, 20);
-        bus.setCurrentStation(terminal1);
+        bus.setCurrentStationId(terminal1.getId());
 
         //Create Schedule of Bus
         bus.addSchedule(1, 2, 5);   //Terminal 1 -> Terminal 2 (5 mins)

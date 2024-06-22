@@ -54,4 +54,12 @@ public class BusEntity extends Entity {
     public void addSchedule(int startStationId, int endStationId, int driveTime) {
         schedule.addScheduleEntry(startStationId, endStationId, driveTime);
     }
+
+     public int getCapacity() {
+        return capacity;
+    }
+
+    public int getPassengerCount() {
+        return passengerList.size();
+    }
 }

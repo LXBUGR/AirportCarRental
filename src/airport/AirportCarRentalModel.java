@@ -1,6 +1,10 @@
 package airport;
 
 import airport.entities.BusEntity;
+import airport.entities.PassengerEntity;
+import airport.events.BusLeaveEvent;
+import airport.events.CarRentalArrivalEvent;
+import airport.events.FlightArrivalEvent;
 import desmoj.core.simulator.*;
 import desmoj.core.dist.*;
 import airport.entities.CarRentalEntity;
@@ -31,11 +35,22 @@ public class AirportCarRentalModel extends Model {
     }
 
     public void doInitialSchedules() {
-        //TODO: schedule initial java.events
+        BusLeaveEvent initialBusLeave = new BusLeaveEvent(this, "Initial Bus Leave", true);
+        initialBusLeave.schedule(IdManager.getStation((int) bus.getNextStationId()), new TimeInstant(bus.getNextStationDriveTime())); // Schedule bus leave at time 10
 
-        //new PassengerGenerator(this, "Terminal1 Passenger Generator", true, arrivalRateTerminal1, terminal1Queue).activate();
-        //new PassengerGenerator(this, "Terminal2 Passenger Generator", true, arrivalRateTerminal2, terminal2Queue).activate();
-        //new PassengerGenerator(this, "Rental Station Passenger Generator", true, arrivalRateRental, rentalQueue).activate();
+        // Schedule initial flight arrival events
+        FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
+        PassengerEntity passenger1 = new PassengerEntity(this, "Passenger1", true, IdManager.getRandomCarRentalId());
+        flightArrival1.schedule(passenger1, new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 1 at time 15
+
+        FlightArrivalEvent flightArrival2 = new FlightArrivalEvent(this, "Flight Arrival Terminal 2", true);
+        PassengerEntity passenger2 = new PassengerEntity(this, "Passenger2", true, IdManager.getRandomCarRentalId());
+        flightArrival2.schedule(passenger2, new TimeInstant(arrivalRateTerminal2.sample())); // Schedule flight arrival at terminal 2 at time 20
+
+        // Schedule initial car rental arrival events
+        CarRentalArrivalEvent carRentalArrival = new CarRentalArrivalEvent(this, "Car Rental Arrival", true);
+        PassengerEntity carRentalPassenger = new PassengerEntity(this, "CarRentalPassenger", true, IdManager.getRandomTerminalId());
+        carRentalArrival.schedule(carRentalPassenger, new TimeInstant(arrivalRateRental.sample())); // Schedule car rental arrival at time 25
     }
 
     public void init() {

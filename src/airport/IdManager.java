@@ -39,12 +39,12 @@ public class IdManager {
 
     //Use when creating Passengers in FlightArrivalEvent
     public static int getRandomTerminalId() {
-        return random.nextInt(maxIdTerminal - 1) + 1;
+        return random.nextInt(maxIdTerminal) + 1;
     }
 
     //Use when creating Passengers in CarRentalArrivalEvent
     public static int getRandomCarRentalId() {
-        return random.nextInt(maxIdCarRental - (maxIdTerminal+1)) + maxIdTerminal + 1;
+        return random.nextInt(maxIdCarRental - maxIdTerminal) + maxIdTerminal + 1;
     }
 
     //Use to retrieve Station object for any given station id

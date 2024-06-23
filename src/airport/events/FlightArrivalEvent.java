@@ -23,6 +23,6 @@ public class FlightArrivalEvent extends Event<PassengerEntity> {
         meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + terminal.getName() + " from a flight.");
 
         // Angekommene Passagier in die Queue von Terminal hinzufügen
-        terminal.getQueue().add(passengerEntity);
+        terminal.getQueue().insert(passengerEntity);
     }
 }

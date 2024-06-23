@@ -40,17 +40,14 @@ public class AirportCarRentalModel extends Model {
 
         // Schedule initial flight arrival events
         FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
-        PassengerEntity passenger1 = new PassengerEntity(this, "Passenger1", true, IdManager.getRandomCarRentalId());
-        flightArrival1.schedule(passenger1, new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 1 at time 15
+        flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 1 at time 15
 
         FlightArrivalEvent flightArrival2 = new FlightArrivalEvent(this, "Flight Arrival Terminal 2", true);
-        PassengerEntity passenger2 = new PassengerEntity(this, "Passenger2", true, IdManager.getRandomCarRentalId());
-        flightArrival2.schedule(passenger2, new TimeInstant(arrivalRateTerminal2.sample())); // Schedule flight arrival at terminal 2 at time 20
+        flightArrival1.schedule((TerminalEntity) IdManager.getStation(2), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 2 at time 20
 
         // Schedule initial car rental arrival events
         CarRentalArrivalEvent carRentalArrival = new CarRentalArrivalEvent(this, "Car Rental Arrival", true);
-        PassengerEntity carRentalPassenger = new PassengerEntity(this, "CarRentalPassenger", true, IdManager.getRandomTerminalId());
-        carRentalArrival.schedule(carRentalPassenger, new TimeInstant(arrivalRateRental.sample())); // Schedule car rental arrival at time 25
+        carRentalArrival.schedule((CarRentalEntity) IdManager.getStation(3), new TimeInstant(arrivalRateRental.sample())); // Schedule car rental arrival at time 25
     }
 
     public void init() {
@@ -93,9 +90,6 @@ public class AirportCarRentalModel extends Model {
     }
 
     public static void main(String[] args) {
-        //Time Unit used in simulation and scheduling: Minutes
-        Experiment.setEpsilon(TimeUnit.MINUTES);
-
         Experiment experiment = new Experiment("Airport Rental Experiment");
 
         AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true);
@@ -110,9 +104,10 @@ public class AirportCarRentalModel extends Model {
         TimeInstant startTime = new TimeInstant(0.0);
         TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
 
+        experiment.tracePeriod(startTime, new TimeInstant(60)); //TODO: check if those numbers are correct for the interval -
+        experiment.debugPeriod(startTime, new TimeInstant(60)); //TODO: (lecture demo uses 0.0 and 60 for experiment time of 240)
+
         experiment.stop(endTime);
-        experiment.tracePeriod(startTime, endTime); //TODO: check if those numbers are correct for the interval -
-        experiment.debugPeriod(startTime, endTime); //TODO: (lecture demo uses 0.0 and 60 for experiment time of 240)
 
         experiment.start();
         experiment.report();

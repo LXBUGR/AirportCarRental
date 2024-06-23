@@ -2,13 +2,13 @@ package airport.events;
 
 import airport.AirportCarRentalModel;
 import airport.IdManager;
+import airport.entities.CarRentalEntity;
 import airport.entities.TerminalEntity;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
+import desmoj.core.simulator.*;
 import airport.entities.PassengerEntity;
 
-public class FlightArrivalEvent extends Event<PassengerEntity> {
+public class FlightArrivalEvent extends Event<TerminalEntity> {
     private final AirportCarRentalModel meinModel;
 
     public FlightArrivalEvent(Model model, String name, boolean showInTrace) {
@@ -17,12 +17,16 @@ public class FlightArrivalEvent extends Event<PassengerEntity> {
     }
 
     @Override
-    public void eventRoutine(PassengerEntity passengerEntity) throws SuspendExecution {
-        int terminalId = passengerEntity.getDestinationId();
-        TerminalEntity terminal = (TerminalEntity) IdManager.getStation(terminalId);
-        meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + terminal.getName() + " from a flight.");
+    public void eventRoutine(TerminalEntity terminal) throws SuspendExecution {
+        //TODO anzahl der Passagiere randomisieren
+        int passengerCount = 10;
+        for(int i = 0; i < passengerCount; i++) {
+            PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier Terminal", true, IdManager.getRandomCarRentalId());
+            terminal.enqueuePassenger(passenger);
+        }
+        meinModel.sendTraceNote(  passengerCount+ " Passengers " + " arrive at " + terminal.getName() + " from a flight.");
 
-        // Angekommene Passagier in die Queue von Terminal hinzufügen
-        terminal.enqueuePassenger(passengerEntity);
+        FlightArrivalEvent arrivalEvent = new FlightArrivalEvent(meinModel, "Flight Arrival" + terminal.getName(), true);
+        arrivalEvent.schedule(terminal, new TimeSpan(meinModel.getArrivalRateTerminal1().sample()));
     }
 }

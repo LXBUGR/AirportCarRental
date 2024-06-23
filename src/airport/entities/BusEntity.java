@@ -1,9 +1,8 @@
 package airport.entities;
 
+import airport.AirportCarRentalModel;
 import airport.BusSchedule;
-import airport.IdManager;
 import desmoj.core.simulator.Entity;
-import desmoj.core.simulator.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ public class BusEntity extends Entity {
     //Used to retrieve information on next station and traveltime
     private final BusSchedule schedule;
 
-    public BusEntity (Model owner, String name, boolean showInTrace, int capacity) {
+    public BusEntity (AirportCarRentalModel owner, String name, boolean showInTrace, int capacity) {
         super(owner, name, showInTrace);
         this.capacity = capacity;
         passengerList = new ArrayList<>();

@@ -28,6 +28,6 @@ public class FlightArrivalEvent extends Event<TerminalEntity> {
         meinModel.sendTraceNote(  passengerCount+ " Passengers " + " arrive at " + terminal.getName() + " from a flight at " + presentTime());
 
         FlightArrivalEvent arrivalEvent = new FlightArrivalEvent(meinModel, "Flight Arrival" + terminal.getName(), true);
-        arrivalEvent.schedule(terminal, new TimeSpan(meinModel.getArrivalRateTerminal1().sample()));
+        arrivalEvent.schedule(terminal, new TimeSpan(meinModel.getArrivalRateTerminal().sample()));
     }
 }

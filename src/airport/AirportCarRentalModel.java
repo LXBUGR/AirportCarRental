@@ -15,9 +15,9 @@ import java.util.List;
 public class AirportCarRentalModel extends Model {
 
     //Distributions
-    private ContDist arrivalRateTerminal1;
-    private ContDist arrivalRateTerminal2;
+    private ContDist arrivalRateTerminal;
     private ContDist arrivalRateRental;
+    private ContDist travelTime;
 
     //Stations - each contains its queue in the StationEntity class with the method getNextPassenger
     //There should be no need to access them, as after init() the Bus contains all information regarding its schedule
@@ -40,10 +40,10 @@ public class AirportCarRentalModel extends Model {
 
         // Schedule initial flight arrival events
         FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
-        flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 1 at time 15
+        flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeInstant(arrivalRateTerminal.sample())); // Schedule flight arrival at terminal 1 at time 15
 
         FlightArrivalEvent flightArrival2 = new FlightArrivalEvent(this, "Flight Arrival Terminal 2", true);
-        flightArrival2.schedule((TerminalEntity) IdManager.getStation(2), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 2 at time 20
+        flightArrival2.schedule((TerminalEntity) IdManager.getStation(2), new TimeInstant(arrivalRateTerminal.sample())); // Schedule flight arrival at terminal 2 at time 20
 
         // Schedule initial car rental arrival events
         CarRentalArrivalEvent carRentalArrival = new CarRentalArrivalEvent(this, "Car Rental Arrival", true);
@@ -52,13 +52,13 @@ public class AirportCarRentalModel extends Model {
 
     public void init() {
         // Initialize arrival rates and travel time
-        arrivalRateTerminal1 = new ContDistExponential(this, "Arrival Rate Terminal 1", 60, true, true);
-        arrivalRateTerminal2 = new ContDistExponential(this, "Arrival Rate Terminal 2", 60, true, true);
-        arrivalRateRental = new ContDistExponential(this, "Arrival Rate Rental Station", 20, true, true);
+        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal 1", 20, 2, true, true);
+        arrivalRateRental = new ContDistNormal(this, "Arrival Rate Rental Station", 2, 0.5, true, true);
+        travelTime = new ContDistNormal(this, "Travel Time", 5, 0.5, true, true);
 
-        arrivalRateTerminal1.setNonNegative(true);
-        arrivalRateTerminal2.setNonNegative(true);
+        arrivalRateTerminal.setNonNegative(true);
         arrivalRateRental.setNonNegative(true);
+        travelTime.setNonNegative(true);
 
         //Initialize Terminals and Carrentals
         List<CarRentalEntity> carRentals = new ArrayList<>();
@@ -112,15 +112,13 @@ public class AirportCarRentalModel extends Model {
         experiment.finish();
     }
 
-    public ContDist getArrivalRateTerminal1() {
-        return arrivalRateTerminal1;
-    }
-    public ContDist getArrivalRateTerminal2() {
-        return arrivalRateTerminal2;
+    public ContDist getArrivalRateTerminal() {
+        return arrivalRateTerminal;
     }
     public ContDist getArrivalRateRental() {
         return arrivalRateRental;
     }
+    public ContDist getTravelTime() { return travelTime; }
     public BusEntity getBus() {
         return bus;
     }

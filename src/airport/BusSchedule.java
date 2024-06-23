@@ -20,6 +20,7 @@ public class BusSchedule {
 
     public void addScheduleEntry(int currentStationId, int nextStationId, int averageDriveTime) {
         schedule.put(currentStationId, new BusScheduleEntry(nextStationId, averageDriveTime));
+        System.out.println("Added schedule entry: " + currentStationId + " -> " + nextStationId + " (Drive time: " + averageDriveTime + ")");
     }
 
     public double getNextStationTime(int currentStationId) {
@@ -28,6 +29,9 @@ public class BusSchedule {
     }
 
     public int getNextStationId(int currentStationId) {
+        if (!schedule.containsKey(currentStationId)) {
+            throw new IllegalStateException("No schedule entry for station ID: " + currentStationId);
+        }
         return schedule.get(currentStationId).nextStationId();
     }
 }

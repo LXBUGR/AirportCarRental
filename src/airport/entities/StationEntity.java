@@ -7,7 +7,8 @@ import desmoj.core.simulator.Queue;
 public class StationEntity extends Entity {
     private final Queue<PassengerEntity> queue;
     private int id;
-    public StationEntity (Model owner, String name, boolean showInTrace) {
+
+    public StationEntity(Model owner, String name, boolean showInTrace) {
         super(owner, name, showInTrace);
         queue = new Queue<>(owner, "Queue for " + name, true, true);
     }
@@ -32,5 +33,9 @@ public class StationEntity extends Entity {
 
     public int getId() {
         return id;
+    }
+
+    public Queue<PassengerEntity> getQueue() {
+        return queue;
     }
 }

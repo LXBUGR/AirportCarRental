@@ -21,8 +21,9 @@ public class FlightArrivalEvent extends Event<TerminalEntity> {
         //TODO anzahl der Passagiere randomisieren
         int passengerCount = 10;
         for(int i = 0; i < passengerCount; i++) {
-            PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier Terminal", true, IdManager.getRandomCarRentalId());
-            terminal.enqueuePassenger(passenger);
+            PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier Terminal", true, terminal.getId(), IdManager.getRandomCarRentalId());
+            PassengerArrivalEvent arrivalEvent = new PassengerArrivalEvent(meinModel, "Passenger arrived at busstop of " + terminal.getName(), true);
+            arrivalEvent.schedule(passenger, new TimeSpan(1));
         }
         meinModel.sendTraceNote(  passengerCount+ " Passengers " + " arrive at " + terminal.getName() + " from a flight.");
 

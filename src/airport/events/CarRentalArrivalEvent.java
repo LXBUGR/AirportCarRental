@@ -20,9 +20,9 @@ public class CarRentalArrivalEvent extends Event<CarRentalEntity> {
 
     @Override
     public void eventRoutine(CarRentalEntity carRentalEntity) throws SuspendExecution {
-        PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier CarRental", true, IdManager.getRandomTerminalId());
-        carRentalEntity.enqueuePassenger(passenger);
-        meinModel.sendTraceNote("Passenger " + passenger.getName() + " arrives at " + passenger.getName());
+        PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier CarRental", true, carRentalEntity.getId(), IdManager.getRandomTerminalId());
+        PassengerArrivalEvent event =  new PassengerArrivalEvent(meinModel, "Passenger arrived at busstop of " + carRentalEntity.getName(), true);
+        event.schedule(passenger, new TimeSpan(1));
 
         CarRentalArrivalEvent arrivalEvent = new CarRentalArrivalEvent(meinModel, "Car Rental Arrival" + carRentalEntity.getName(), true);
         arrivalEvent.schedule(carRentalEntity, new TimeSpan(meinModel.getArrivalRateRental().sample()));

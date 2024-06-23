@@ -18,8 +18,7 @@ public class PassengerArrivalEvent extends Event<PassengerEntity> {
 
     @Override
     public void eventRoutine(PassengerEntity passengerEntity) throws SuspendExecution {
-        int stationId = passengerEntity.getDestinationId();
-        StationEntity station = IdManager.getStation(stationId);
+        StationEntity station = IdManager.getStation(passengerEntity.getArrivalId());
         meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + station.getName());
 
         // Angekommene Passagier in die Station Queue hinzufügen

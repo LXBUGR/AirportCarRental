@@ -18,6 +18,7 @@ public class AirportCarRentalModel extends Model {
     private ContDist arrivalRateTerminal;
     private ContDist arrivalRateRental;
     private ContDist travelTime;
+    private ContDist flightPassengers;
 
     //Stations - each contains its queue in the StationEntity class with the method getNextPassenger
     //There should be no need to access them, as after init() the Bus contains all information regarding its schedule
@@ -52,9 +53,10 @@ public class AirportCarRentalModel extends Model {
 
     public void init() {
         // Initialize arrival rates and travel time
-        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal 1", 20, 2, true, true);
+        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal 1", 30, 2, true, true);
         arrivalRateRental = new ContDistNormal(this, "Arrival Rate Rental Station", 2, 0.5, true, true);
         travelTime = new ContDistNormal(this, "Travel Time", 5, 0.5, true, true);
+        flightPassengers = new ContDistNormal(this, "Amount Passengers on flight", 20, 5, true, true);
 
         arrivalRateTerminal.setNonNegative(true);
         arrivalRateRental.setNonNegative(true);
@@ -102,8 +104,8 @@ public class AirportCarRentalModel extends Model {
         TimeInstant startTime = new TimeInstant(0.0);
         TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
 
-        experiment.tracePeriod(startTime, new TimeInstant(4800.0)); //TODO: check if those numbers are correct for the interval -
-        experiment.debugPeriod(startTime, new TimeInstant(4800.0)); //TODO: (lecture demo uses 0.0 and 60 for experiment time of 240)
+        experiment.tracePeriod(startTime, new TimeInstant(4800.0));
+        experiment.debugPeriod(startTime, new TimeInstant(4800.0));
 
         experiment.stop(endTime);
 
@@ -119,6 +121,7 @@ public class AirportCarRentalModel extends Model {
         return arrivalRateRental;
     }
     public ContDist getTravelTime() { return travelTime; }
+    public ContDist getFlightPassengers() { return flightPassengers; }
     public BusEntity getBus() {
         return bus;
     }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BusEntity extends Entity {
+    private boolean driving = false;
     private final int capacity;
     private int currentStationId;
     private final List<PassengerEntity> passengerList;
@@ -23,10 +24,7 @@ public class BusEntity extends Entity {
         schedule = new BusSchedule(owner);
     }
 
-    public void drive() {
-        currentStationId = IdManager.getStation(currentStationId).getId();
-    }
-
+    public int getCurrentStationId() { return currentStationId; }
     public void setCurrentStationId(int stationId) {
         this.currentStationId = stationId;
     }
@@ -45,7 +43,7 @@ public class BusEntity extends Entity {
         }
     }
 
-    public void removePassengers(int destination) {
+    public void removePassengers() {
         passengerList.removeIf(passengerEntity ->
                 passengerEntity.getDestinationId() == currentStationId
         );
@@ -62,4 +60,8 @@ public class BusEntity extends Entity {
     public int getPassengerCount() {
         return passengerList.size();
     }
+
+    public boolean isDriving() { return driving; }
+
+    public void setDriving( boolean val ) { driving = val; }
 }

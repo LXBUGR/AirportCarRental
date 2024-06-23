@@ -4,10 +4,10 @@ import airport.IdManager;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 import airport.entities.StationEntity;
 import airport.entities.BusEntity;
 import airport.AirportCarRentalModel;
+import desmoj.core.simulator.TimeSpan;
 
 public class BusLeaveEvent extends Event<StationEntity> {
     private final AirportCarRentalModel meinModel;
@@ -28,7 +28,9 @@ public class BusLeaveEvent extends Event<StationEntity> {
 
         // Neue ereignis für die Busankunft an der nächsten Station
         BusArrivalEvent arrivalEvent = new BusArrivalEvent(meinModel, "Bus Arrival Event", true);
-        arrivalEvent.schedule(nextStation, new TimeInstant(travelTime));
+        arrivalEvent.schedule(nextStation, new TimeSpan(travelTime));
+        bus.setDriving(true);
+        meinModel.currentBusLeave = null;
 
         // Bus abfahrt loggen
         meinModel.sendTraceNote("Bus departs from " + stationEntity.getName() + " to " + nextStation.getName());

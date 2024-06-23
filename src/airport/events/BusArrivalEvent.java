@@ -3,11 +3,11 @@ package airport.events;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 import airport.entities.StationEntity;
 import airport.entities.BusEntity;
 import airport.entities.PassengerEntity;
 import airport.AirportCarRentalModel;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.Random;
 
@@ -23,6 +23,7 @@ public class BusArrivalEvent extends Event<StationEntity> {
 
     @Override
     public void eventRoutine(StationEntity nextStation) throws SuspendExecution {
+        double waitingTime = 0;
         BusEntity bus = meinModel.getBus();
 
         // Update aktuelle Station ID
@@ -32,16 +33,22 @@ public class BusArrivalEvent extends Event<StationEntity> {
         meinModel.sendTraceNote("Bus arrives at " + nextStation.getName());
 
         // Passagiere steigen aus wessen Ziel die angekommene Station ist
-        bus.removePassengers(nextStation.getId());
+        bus.removePassengers();
 
-        // Passagiere steigen ein(wenn noch Platz im Bus gibts) Kapazität wird beim Busentity festgelegt. 
+        // Passagiere steigen ein(wenn noch Platz im Bus gibts) Kapazität wird beim BusEntity festgelegt.
         while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.queueEmpty()) {
             bus.addPassenger((PassengerEntity) nextStation.dequeuePassenger());
         }
 
-        // Abfahrt planen 
-        double waitingTime = 4.0 + random.nextDouble(); // Warte dauer des busses beim station ( erstmal min. 4 gemacht, je nach bedarf ändern)
+        if(bus.getPassengerCount() < bus.getCapacity()) {
+            waitingTime = 5.0; // Warte dauer des busses beim station
+        }
+
+        bus.setDriving(false);
+
+        // Abfahrt planen
         BusLeaveEvent leaveEvent = new BusLeaveEvent(meinModel, "Bus Leave Event", true);
-        leaveEvent.schedule(nextStation, new TimeInstant(waitingTime));
+        leaveEvent.schedule(nextStation, new TimeSpan(waitingTime));
+        meinModel.currentBusLeave = leaveEvent;
     }
 }

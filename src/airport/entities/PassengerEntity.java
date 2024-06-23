@@ -8,7 +8,7 @@ public class PassengerEntity extends Entity {
     private final int destinationId;
     public PassengerEntity (Model owner, String name, boolean showInTrace, int arrivalId, int destinationId) {
         super(owner, name, showInTrace);
-        this.arrivalId = arrivalId
+        this.arrivalId = arrivalId;
         this.destinationId = destinationId;
     }
 

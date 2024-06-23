@@ -24,7 +24,8 @@ public class BusSchedule {
     }
 
     public double getNextStationTime(int currentStationId) {
-        ContDist distribution = new ContDistNormal(owner, "Travel Time", schedule.get(currentStationId).averageDriveTime(), 10, true, true);
+        ContDist distribution = new ContDistNormal(owner, "Travel Time", schedule.get(currentStationId).averageDriveTime(), 0.5, true, true);
+        distribution.setNonNegative(true);
         return distribution.sample();
     }
 

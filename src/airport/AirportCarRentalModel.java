@@ -1,7 +1,6 @@
 package airport;
 
 import airport.entities.BusEntity;
-import airport.entities.PassengerEntity;
 import airport.events.BusLeaveEvent;
 import airport.events.CarRentalArrivalEvent;
 import airport.events.FlightArrivalEvent;
@@ -12,7 +11,6 @@ import airport.entities.TerminalEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AirportCarRentalModel extends Model {
 
@@ -25,6 +23,8 @@ public class AirportCarRentalModel extends Model {
     //There should be no need to access them, as after init() the Bus contains all information regarding its schedule
     //Also, these can be accessed by using the IdManager class with the id of the station youre looking for
     private BusEntity bus;
+
+    public BusLeaveEvent currentBusLeave;
 
     public AirportCarRentalModel(Model owner, String name, boolean showInReport, boolean showInTrace) {
         super(owner, name, showInReport, showInTrace);
@@ -43,7 +43,7 @@ public class AirportCarRentalModel extends Model {
         flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 1 at time 15
 
         FlightArrivalEvent flightArrival2 = new FlightArrivalEvent(this, "Flight Arrival Terminal 2", true);
-        flightArrival1.schedule((TerminalEntity) IdManager.getStation(2), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 2 at time 20
+        flightArrival2.schedule((TerminalEntity) IdManager.getStation(2), new TimeInstant(arrivalRateTerminal1.sample())); // Schedule flight arrival at terminal 2 at time 20
 
         // Schedule initial car rental arrival events
         CarRentalArrivalEvent carRentalArrival = new CarRentalArrivalEvent(this, "Car Rental Arrival", true);
@@ -52,15 +52,13 @@ public class AirportCarRentalModel extends Model {
 
     public void init() {
         // Initialize arrival rates and travel time
-        arrivalRateTerminal1 = new ContDistExponential(this, "Arrival Rate Terminal 1", 10, true, true);
-        arrivalRateTerminal2 = new ContDistExponential(this, "Arrival Rate Terminal 2", 15, true, true);
+        arrivalRateTerminal1 = new ContDistExponential(this, "Arrival Rate Terminal 1", 60, true, true);
+        arrivalRateTerminal2 = new ContDistExponential(this, "Arrival Rate Terminal 2", 60, true, true);
         arrivalRateRental = new ContDistExponential(this, "Arrival Rate Rental Station", 20, true, true);
-        ContDist travelTime = new ContDistNormal(this, "Travel Time", 5, 10, true, true);
 
         arrivalRateTerminal1.setNonNegative(true);
         arrivalRateTerminal2.setNonNegative(true);
         arrivalRateRental.setNonNegative(true);
-        travelTime.setNonNegative(true);
 
         //Initialize Terminals and Carrentals
         List<CarRentalEntity> carRentals = new ArrayList<>();
@@ -104,8 +102,8 @@ public class AirportCarRentalModel extends Model {
         TimeInstant startTime = new TimeInstant(0.0);
         TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
 
-        experiment.tracePeriod(startTime, new TimeInstant(60)); //TODO: check if those numbers are correct for the interval -
-        experiment.debugPeriod(startTime, new TimeInstant(60)); //TODO: (lecture demo uses 0.0 and 60 for experiment time of 240)
+        experiment.tracePeriod(startTime, new TimeInstant(4800.0)); //TODO: check if those numbers are correct for the interval -
+        experiment.debugPeriod(startTime, new TimeInstant(4800.0)); //TODO: (lecture demo uses 0.0 and 60 for experiment time of 240)
 
         experiment.stop(endTime);
 

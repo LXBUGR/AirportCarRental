@@ -1,7 +1,6 @@
 package airport.events;
 
 import airport.IdManager;
-import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import airport.entities.StationEntity;
@@ -18,12 +17,12 @@ public class BusLeaveEvent extends Event<StationEntity> {
     }
 
     @Override
-    public void eventRoutine(StationEntity stationEntity) throws SuspendExecution {
+    public void eventRoutine(StationEntity stationEntity) {
         BusEntity bus = meinModel.getBus();
-        double nextStationId = bus.getNextStationId();
+        int nextStationId = bus.getNextStationId();
 
         // Ankunft des Buses am nächsten Station planen
-        StationEntity nextStation = IdManager.getStation((int) nextStationId);
+        StationEntity nextStation = IdManager.getStation(nextStationId);
         double travelTime = bus.getNextStationDriveTime();
 
         // Neue ereignis für die Busankunft an der nächsten Station

@@ -37,7 +37,7 @@ public class AirportCarRentalModel extends Model {
 
     public void doInitialSchedules() {
         BusLeaveEvent initialBusLeave = new BusLeaveEvent(this, "Initial Bus Leave", true);
-        initialBusLeave.schedule(IdManager.getStation((int) bus.getNextStationId()), new TimeInstant(bus.getNextStationDriveTime())); // Schedule bus leave at time 10
+        initialBusLeave.schedule(IdManager.getStation(bus.getCurrentStationId()), new TimeInstant(bus.getNextStationDriveTime())); // Schedule bus leave at time 10
 
         // Schedule initial flight arrival events
         FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
@@ -53,7 +53,7 @@ public class AirportCarRentalModel extends Model {
 
     public void init() {
         // Initialize arrival rates and travel time
-        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal 1", 30, 2, true, true);
+        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal", 45, 2, true, true);
         arrivalRateRental = new ContDistNormal(this, "Arrival Rate Rental Station", 2, 0.5, true, true);
         travelTime = new ContDistNormal(this, "Travel Time", 5, 0.5, true, true);
         flightPassengers = new ContDistNormal(this, "Amount Passengers on flight", 20, 5, true, true);
@@ -91,21 +91,16 @@ public class AirportCarRentalModel extends Model {
 
     public static void main(String[] args) {
         Experiment experiment = new Experiment("Airport Rental Experiment");
-
         AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true);
         model.connectToExperiment(experiment);
-
-        //trace and debug period: 60
-        experiment.tracePeriod(new TimeInstant(0.0), new TimeInstant(60));
-        experiment.debugPeriod(new TimeInstant(0.0), new TimeInstant(60));
 
         experiment.setShowProgressBarAutoclose(true);
 
         TimeInstant startTime = new TimeInstant(0.0);
         TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
 
-        experiment.tracePeriod(startTime, new TimeInstant(4800.0));
-        experiment.debugPeriod(startTime, new TimeInstant(4800.0));
+        experiment.tracePeriod(startTime, endTime);
+        experiment.debugPeriod(startTime, endTime);
 
         experiment.stop(endTime);
 

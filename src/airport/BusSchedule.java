@@ -1,9 +1,5 @@
 package airport;
 
-import desmoj.core.dist.ContDist;
-import desmoj.core.dist.ContDistNormal;
-import desmoj.core.simulator.Model;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +19,7 @@ public class BusSchedule {
     }
 
     public double getNextStationTime(int currentStationId) {
+        //TODO make different stations have different travel times
         return meinModel.getTravelTime().sample();
     }
 

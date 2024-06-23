@@ -4,11 +4,9 @@ import airport.AirportCarRentalModel;
 import airport.IdManager;
 import airport.entities.BusEntity;
 import airport.entities.StationEntity;
-import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import airport.entities.PassengerEntity;
-import desmoj.core.simulator.TimeSpan;
 
 public class PassengerArrivalEvent extends Event<PassengerEntity> {
     private final AirportCarRentalModel meinModel;
@@ -19,7 +17,7 @@ public class PassengerArrivalEvent extends Event<PassengerEntity> {
     }
 
     @Override
-    public void eventRoutine(PassengerEntity passengerEntity) throws SuspendExecution {
+    public void eventRoutine(PassengerEntity passengerEntity) {
         StationEntity station = IdManager.getStation(passengerEntity.getArrivalId());
         meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + station.getName());
 
@@ -28,7 +26,7 @@ public class PassengerArrivalEvent extends Event<PassengerEntity> {
             //Angekommenen Passagier steigt in Bus ein
             bus.addPassenger(passengerEntity);
             if(bus.getPassengerCount() == bus.getCapacity()) {
-               meinModel.currentBusLeave.reSchedule(new TimeSpan(0));
+               meinModel.currentBusLeave.reSchedule(meinModel.presentTime());
             }
         } else {
             // Angekommene Passagier in die Station Queue hinzufügen

@@ -3,7 +3,6 @@ package airport.events;
 import airport.AirportCarRentalModel;
 import airport.IdManager;
 import airport.entities.CarRentalEntity;
-import airport.entities.TerminalEntity;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -24,7 +23,7 @@ public class CarRentalArrivalEvent extends Event<CarRentalEntity> {
         PassengerArrivalEvent event =  new PassengerArrivalEvent(meinModel, "Passenger arrived at busstop of " + carRentalEntity.getName() + " at " + presentTime(), true);
         event.schedule(passenger, new TimeSpan(1));
 
-        CarRentalArrivalEvent arrivalEvent = new CarRentalArrivalEvent(meinModel, "Car Rental Arrival" + carRentalEntity.getName(), true);
+        CarRentalArrivalEvent arrivalEvent = new CarRentalArrivalEvent(meinModel, "Car Rental Arrival", true);
         arrivalEvent.schedule(carRentalEntity, new TimeSpan(meinModel.getArrivalRateRental().sample()));
     }
 }

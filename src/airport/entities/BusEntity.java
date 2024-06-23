@@ -32,7 +32,7 @@ public class BusEntity extends Entity {
         return schedule.getNextStationTime(currentStationId);
     }
 
-    public double getNextStationId() {
+    public int getNextStationId() {
         return schedule.getNextStationId(currentStationId);
     }
 

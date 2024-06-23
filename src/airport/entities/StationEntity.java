@@ -34,8 +34,4 @@ public class StationEntity extends Entity {
     public int getId() {
         return id;
     }
-
-    public Queue<PassengerEntity> getQueue() {
-        return queue;
-    }
 }

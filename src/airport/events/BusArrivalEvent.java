@@ -5,20 +5,15 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import airport.entities.StationEntity;
 import airport.entities.BusEntity;
-import airport.entities.PassengerEntity;
 import airport.AirportCarRentalModel;
 import desmoj.core.simulator.TimeSpan;
 
-import java.util.Random;
-
 public class BusArrivalEvent extends Event<StationEntity> {
     private final AirportCarRentalModel meinModel;
-    private final Random random;
 
     public BusArrivalEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         meinModel = (AirportCarRentalModel) model;
-        random = new Random();
     }
 
     @Override
@@ -37,7 +32,7 @@ public class BusArrivalEvent extends Event<StationEntity> {
 
         // Passagiere steigen ein(wenn noch Platz im Bus gibts) Kapazität wird beim BusEntity festgelegt.
         while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.queueEmpty()) {
-            bus.addPassenger((PassengerEntity) nextStation.dequeuePassenger());
+            bus.addPassenger(nextStation.dequeuePassenger());
         }
 
         if(bus.getPassengerCount() < bus.getCapacity()) {

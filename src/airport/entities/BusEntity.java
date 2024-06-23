@@ -28,7 +28,7 @@ public class BusEntity extends Entity {
     }
 
     public void setCurrentStationId(int stationId) {
-        this.currentStationId = schedule.getNextStationId(currentStationId);
+        this.currentStationId = stationId;
     }
 
     public double getNextStationDriveTime() {

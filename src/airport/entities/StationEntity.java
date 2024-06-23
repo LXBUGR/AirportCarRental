@@ -18,6 +18,14 @@ public class StationEntity extends Entity {
         return nextPassenger;
     }
 
+    public void enqueuePassenger(PassengerEntity passenger) {
+        queue.insert(passenger);
+    }
+
+    public boolean queueEmpty() {
+        return queue.isEmpty();
+    }
+
     public void setId(int id) {
         this.id = id;
     }

@@ -22,6 +22,6 @@ public class CarRentalArrivalEvent extends Event<PassengerEntity> {
         meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + carRentalStation.getName());
 
         // Neue Kunde kommt beim Mietstation an und wird an die queue hinzugefügt
-        carRentalStation.getQueue().add(passengerEntity);
+        carRentalStation.enqueuePassenger(passengerEntity);
     }
 }

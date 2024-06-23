@@ -35,7 +35,7 @@ public class BusArrivalEvent extends Event<StationEntity> {
         bus.removePassengers(nextStation.getId());
 
         // Passagiere steigen ein(wenn noch Platz im Bus gibts) Kapazität wird beim Busentity festgelegt. 
-        while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.getQueue().isEmpty()) {
+        while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.queueEmpty()) {
             bus.addPassenger((PassengerEntity) nextStation.dequeuePassenger());
         }
 

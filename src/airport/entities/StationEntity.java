@@ -37,7 +37,6 @@ public class StationEntity extends Entity {
     }
 
     public void recordPassengerWaitTime(double waitTime) {
-        ((AirportCarRentalModel) getModel()).getStationWaitTimes().update(waitTime);
-        sendTraceNote("Passenger wait time recorded: " + waitTime + " at " + getName());
+        ((AirportCarRentalModel) getModel()).getStationWaitTimes(id).update(waitTime);
     }
 }

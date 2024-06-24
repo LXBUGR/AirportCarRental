@@ -1,6 +1,5 @@
 package airport.events;
 
-import airport.entities.CarRentalEntity;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -20,41 +19,35 @@ public class BusArrivalEvent extends Event<StationEntity> {
     }
 
     @Override
-    public void eventRoutine(StationEntity nextStation) throws SuspendExecution {
+    public void eventRoutine(StationEntity nextStation) {
         TimeInstant arrivalTime = meinModel.presentTime();
         BusEntity bus = meinModel.getBus();
+        double waitingTime = 0;
 
         bus.setCurrentStationId(nextStation.getId());
+        bus.setDriving(false);
+        bus.setLastArrivalTime(arrivalTime.getTimeAsDouble());
         meinModel.sendTraceNoteWithPassengers("Bus arrives at " + nextStation.getName());
 
-        // Remove passengers and record stay times
-        for (PassengerEntity passenger : bus.getPassengerList()) {
-            double stayTime = arrivalTime.getTimeAsDouble() - passenger.getArrivalTime().getTimeAsDouble();
-            if (nextStation.getId() == 1) {
-                meinModel.getStation1StayTimes().update(stayTime);
-            } else if (nextStation.getId() == 2) {
-                meinModel.getStation2StayTimes().update(stayTime);
-            } else if (nextStation.getId() == 3) {
-                meinModel.getCarRentalStayTimes().update(stayTime);
-            }
-        }
-        bus.removePassengers();
+        bus.removePassengers(); //remove passengers; updates passengerSystemTimes
 
         while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.queueEmpty()) {
             PassengerEntity passenger = nextStation.dequeuePassenger();
             bus.addPassenger(passenger);
-            double waitTime = ((TimeInstant) arrivalTime).getTimeAsDouble() - passenger.getArrivalTime().getTimeAsDouble();
-            nextStation.recordPassengerWaitTime(waitTime);
-            meinModel.getPassengerSystemTimes().update(waitTime);
+            double waitTime = arrivalTime.getTimeAsDouble() - passenger.getArrivalTime().getTimeAsDouble();
+            nextStation.recordPassengerWaitTime(waitTime);  //update passengerWaitTime
         }
 
-        bus.setDriving(false);
+        if(bus.getPassengerCount() < bus.getCapacity()) {
+            waitingTime = 5.0; // Warte dauer des busses beim station
+        }
 
         BusLeaveEvent leaveEvent = new BusLeaveEvent(meinModel, "Bus Leave Event", true);
-        leaveEvent.schedule(nextStation, new TimeSpan(5.0));
+        leaveEvent.schedule(nextStation, new TimeSpan(waitingTime));
         meinModel.currentBusLeave = leaveEvent;
 
-        bus.endRound();
-        bus.startRound();
+        if(bus.getCurrentStationId() == 1) {
+            bus.endRound();
+        }
     }
 }

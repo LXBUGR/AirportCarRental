@@ -13,6 +13,7 @@ public class BusEntity extends Entity {
     private final List<PassengerEntity> passengerList;
     private final BusSchedule schedule;
     private double lastRoundStartTime;
+    private double lastArrivalTime;
 
     public BusEntity(AirportCarRentalModel owner, String name, boolean showInTrace, int capacity) {
         super(owner, name, showInTrace);
@@ -20,6 +21,7 @@ public class BusEntity extends Entity {
         passengerList = new ArrayList<>();
         schedule = new BusSchedule(owner);
         lastRoundStartTime = 0;
+        lastArrivalTime = 0;
     }
 
     public int getPassengerCount() {
@@ -33,42 +35,23 @@ public class BusEntity extends Entity {
     public void addPassenger(PassengerEntity passengerEntity) {
         if (passengerList.size() < capacity) {
             passengerList.add(passengerEntity);
-            ((AirportCarRentalModel) getModel()).getBusPassengerCount().update(passengerList.size()); // Histogramm aktualisieren
-            ((AirportCarRentalModel) getModel()).getBusPassengerTimeSeries().update(presentTime().getTimeAsDouble()); // Zeitreihe aktualisieren
-            ((AirportCarRentalModel) getModel()).sendTraceNoteWithPassengers("Passenger added: " + passengerEntity.getName());
         }
     }
 
     public void removePassengers() {
-        List<PassengerEntity> departingPassengers = new ArrayList<>();
+        AirportCarRentalModel model = ((AirportCarRentalModel) getModel());
         double currentTime = presentTime().getTimeAsDouble();
-        passengerList.removeIf(passengerEntity -> {
-            boolean shouldRemove = passengerEntity.getDestinationId() == currentStationId;
-            if (shouldRemove) {
-                departingPassengers.add(passengerEntity);
+        passengerList.removeIf(passenger -> {
+            if (passenger.getDestinationId() == currentStationId) {
+                double systemTime = currentTime - passenger.getArrivalTime().getTimeAsDouble();
+                model.getPassengerSystemTimes().update(systemTime);
+                model.getPassengerSystemTimeSeries().update(systemTime);
+                return true;
             }
-            return shouldRemove;
+            return false;
         });
-        ((AirportCarRentalModel) getModel()).getBusPassengerCount().update(passengerList.size()); // Histogramm aktualisieren
-        ((AirportCarRentalModel) getModel()).getBusPassengerTimeSeries().update(presentTime().getTimeAsDouble()); // Zeitreihe aktualisieren
-        ((AirportCarRentalModel) getModel()).getPassengerCountPerRide().update(getPassengerCount()); // Passagieranzahl pro Fahrt aktualisieren
 
-        // Calculate and update the system time for departing passengers
-        for (PassengerEntity passenger : departingPassengers) {
-            double systemTime = currentTime - passenger.getArrivalTime().getTimeAsDouble();
-            if (passenger.getArrivalId() == 1) {
-                ((AirportCarRentalModel) getModel()).getTerminal1PassengerTimes().update(systemTime);
-            } else if (passenger.getArrivalId() == 2) {
-                ((AirportCarRentalModel) getModel()).getTerminal2PassengerTimes().update(systemTime);
-            } else if (passenger.getArrivalId() == 3) {
-                ((AirportCarRentalModel) getModel()).getCarRentalPassengerTimes().update(systemTime);
-            }
-        }
         ((AirportCarRentalModel) getModel()).sendTraceNoteWithPassengers("Passengers removed at station: " + currentStationId);
-    }
-
-    public List<PassengerEntity> getPassengerList() {
-        return new ArrayList<>(passengerList);
     }
 
     public void addSchedule(int startStationId, int endStationId, int driveTime) {
@@ -90,10 +73,11 @@ public class BusEntity extends Entity {
     }
 
     public void endRound() {
-        double roundTime = presentTime().getTimeAsDouble() - lastRoundStartTime;
+        double now = presentTime().getTimeAsDouble();
+        double roundTime = now - lastRoundStartTime;
         ((AirportCarRentalModel) getModel()).getBusRoundTimes().update(roundTime);
         ((AirportCarRentalModel) getModel()).getPassengerCountPerRide().update(getPassengerCount());
-        lastRoundStartTime = presentTime().getTimeAsDouble();
+        lastRoundStartTime = now;
         ((AirportCarRentalModel) getModel()).sendTraceNoteWithPassengers("Round ended at station: " + currentStationId);
     }
 
@@ -113,7 +97,7 @@ public class BusEntity extends Entity {
         this.driving = driving;
     }
 
-    public double getLastRoundStartTime() {
-        return lastRoundStartTime;
-    }
+    public double getLastArrivalTime() { return lastArrivalTime; }
+
+    public void setLastArrivalTime(double lastArrivalTime) { this.lastArrivalTime = lastArrivalTime; }
 }

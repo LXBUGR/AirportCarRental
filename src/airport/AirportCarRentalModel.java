@@ -8,7 +8,6 @@ import airport.events.CarRentalArrivalEvent;
 import airport.events.FlightArrivalEvent;
 import desmoj.core.simulator.*;
 import desmoj.core.dist.*;
-import desmoj.core.report.*;
 import desmoj.core.statistic.Tally;
 import desmoj.core.statistic.Histogram;
 
@@ -25,21 +24,21 @@ public class AirportCarRentalModel extends Model {
 
     // Bus and station statistics
     private BusEntity bus;
-    private Tally busRoundTimes;
-    private Tally busWaitTimes;
-    private Histogram stationWaitTimes;
-    private Tally passengerSystemTimes;
-    private Histogram busPassengerCount;  // Histogram für Anzahl der Passagiere im Bus
-    private Tally station1StayTimes;      // Tally für Aufenthaltsdauer an Station 1
-    private Tally station2StayTimes;      // Tally für Aufenthaltsdauer an Station 2
-    private Tally carRentalStayTimes;     // Tally für Aufenthaltsdauer an der Autovermietungsstation
-    private Tally terminal1PassengerTimes;  // Tally für Verweildauer der Passagiere im System (Terminal 1)
-    private Tally terminal2PassengerTimes;  // Tally für Verweildauer der Passagiere im System (Terminal 2)
-    private Tally carRentalPassengerTimes;  // Tally für Verweildauer der Passagiere im System (Autovermietung)
 
-    // New Histograms
-    private Histogram avgPassengerStayTimes;  // Balkendiagramm der durchschnittlichen Verweildauer der Passagiere
-    private Histogram busPassengerTimeSeries; // Liniendiagramm der Anzahl der Passagiere im Bus über die Zeit
+    //Tallies
+    private Tally busRoundTimes; //Maximale, Mittlere & Minimale Dauer einer Runde des Busses
+    private Tally busWaitTimeT1; //Aufenthaltsdauer des Busses an Terminal 1
+    private Tally busWaitTimeT2; //Aufenthaltsdauer des Busses an Terminal 2
+    private Tally busWaitTimeC1; //Aufenthaltsdauer des Busses an CarRental 1
+    private Tally stationWaitTimeT1; //Wartezeit der Passagiere in jeder Warteschlange Terminal 1
+    private Tally stationWaitTimeT2; //Wartezeit der Passagiere in jeder Warteschlange Terminal 2
+    private Tally stationWaitTimeC1; //Wartezeit der Passagiere in jeder Warteschlange CarRental 1
+    private Tally passengerSystemTimes; //Dauer einer Person im System
+    private Tally busPassengerCount;  //Anzahl der Passagiere im Bus
+
+    // Histograms
+    private Histogram passengerSystemTimeSeries;  // Balkendiagramm der Verweildauer der Passagiere im System
+    private Histogram busPassengerTimeSeries; // TODO Liniendiagramm der Anzahl der Passagiere im Bus über die Zeit
     private Histogram passengerCountPerRide;  // Histogramm der Passagieranzahl pro Busfahrt
 
     public BusLeaveEvent currentBusLeave;
@@ -57,19 +56,19 @@ public class AirportCarRentalModel extends Model {
         initialBusLeave.schedule(IdManager.getStation(bus.getCurrentStationId()), new TimeSpan(bus.getNextStationDriveTime()));
 
         FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
-        flightArrival1.schedule(IdManager.getStation(1), new TimeSpan(arrivalRateTerminal.sample()));
+        flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeSpan(arrivalRateTerminal.sample()));
 
         FlightArrivalEvent flightArrival2 = new FlightArrivalEvent(this, "Flight Arrival Terminal 2", true);
-        flightArrival2.schedule(IdManager.getStation(2), new TimeSpan(arrivalRateTerminal.sample()));
+        flightArrival2.schedule((TerminalEntity) IdManager.getStation(2), new TimeSpan(arrivalRateTerminal.sample()));
 
         CarRentalArrivalEvent carRentalArrival = new CarRentalArrivalEvent(this, "Car Rental Arrival", true);
-        carRentalArrival.schedule(IdManager.getStation(3), new TimeSpan(arrivalRateRental.sample()));
+        carRentalArrival.schedule((CarRentalEntity) IdManager.getStation(3), new TimeSpan(arrivalRateRental.sample()));
     }
 
 
     public void init() {
         // Initialize distributions
-        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal", 45, 2, true, true);
+        arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal", 60, 2, true, true);
         arrivalRateRental = new ContDistNormal(this, "Arrival Rate Rental Station", 2, 0.5, true, true);
         travelTime = new ContDistNormal(this, "Travel Time", 5, 0.5, true, true);
         flightPassengers = new ContDistNormal(this, "Amount Passengers on flight", 20, 5, true, true);
@@ -101,19 +100,17 @@ public class AirportCarRentalModel extends Model {
 
         // Initialize tallies and histograms for reporting
         busRoundTimes = new Tally(this, "Bus Round Times", true, true);
-        busWaitTimes = new Tally(this, "Bus Wait Times", true, true);
-        stationWaitTimes = new Histogram(this, "Station Wait Times", 50, 0, 10, true, true);
+        busWaitTimeT1 = new Tally(this, "Bus Wait Time Terminal 1", true, true);
+        busWaitTimeT2 = new Tally(this, "Bus Wait Time Terminal 2", true, true);
+        busWaitTimeC1 = new Tally(this, "Bus Wait Time CarRental 1", true, true);
+        stationWaitTimeT1 = new Tally(this, "Station Wait Time Terminal 1",true, true);
+        stationWaitTimeT2 = new Tally(this, "Station Wait Time Terminal 2", true, true);
+        stationWaitTimeC1 = new Tally(this, "Station Wait Time CarRental 1", true, true);
         passengerSystemTimes = new Tally(this, "Passenger System Times", true, true);
-        busPassengerCount = new Histogram(this, "Bus Passenger Count", 20, 0, 20, true, true);  // Histogram für Anzahl der Passagiere im Bus
-        station1StayTimes = new Tally(this, "Station 1 Stay Times", true, true);  // Tally für Aufenthaltsdauer an Station 1
-        station2StayTimes = new Tally(this, "Station 2 Stay Times", true, true);  // Tally für Aufenthaltsdauer an Station 2
-        carRentalStayTimes = new Tally(this, "Car Rental Stay Times", true, true);  // Tally für Aufenthaltsdauer an der Autovermietungsstation
-        terminal1PassengerTimes = new Tally(this, "Terminal 1 Passenger Times", true, true);  // Tally für Verweildauer der Passagiere im System (Terminal 1)
-        terminal2PassengerTimes = new Tally(this, "Terminal 2 Passenger Times", true, true);  // Tally für Verweildauer der Passagiere im System (Terminal 2)
-        carRentalPassengerTimes = new Tally(this, "Car Rental Passenger Times", true, true);  // Tally für Verweildauer der Passagiere im System (Autovermietung)
+        busPassengerCount = new Tally(this, "Bus Passenger Count", true, true);  // Histogram für Anzahl der Passagiere im Bus
 
         // Initialize new histograms
-        avgPassengerStayTimes = new Histogram(this, "Avg Passenger Stay Times", 3, 0, 3, true, true);
+        passengerSystemTimeSeries = new Histogram(this, "Passenger Stay Times", 0, 100, 10, true, true);
         busPassengerTimeSeries = new Histogram(this, "Bus Passenger Time Series", 4800, 0, 20, true, true); // Zeitreihe der Passagierzahlen (minütliche Auflösung)
         passengerCountPerRide = new Histogram(this, "Passenger Count Per Ride", 20, 0, 20, true, true);
     }
@@ -137,38 +134,31 @@ public class AirportCarRentalModel extends Model {
     public Tally getBusRoundTimes() {
         return busRoundTimes;
     }
-    public Tally getBusWaitTimes() {
-        return busWaitTimes;
+    public Tally getBusWaitTimes(int id) {
+        return switch (id) {
+            case 1 -> busWaitTimeT1;
+            case 2 -> busWaitTimeT2;
+            case 3 -> busWaitTimeC1;
+            default -> throw new RuntimeException("cannot get bus wait time Tally for station id " + id + ", station does not exist");
+        };
     }
-    public Histogram getStationWaitTimes() {
-        return stationWaitTimes;
+    public Tally getStationWaitTimes(int id) {
+        return switch (id) {
+            case 1 -> stationWaitTimeT1;
+            case 2 -> stationWaitTimeT2;
+            case 3 -> stationWaitTimeC1;
+            default -> throw new RuntimeException("cannot get station wait time Tally for station id " + id + ", station does not exist");
+        };
     }
     public Tally getPassengerSystemTimes() {
         return passengerSystemTimes;
     }
-    public Histogram getBusPassengerCount() {
+    public Tally getBusPassengerCount() {
         return busPassengerCount;
     }
-    public Tally getStation1StayTimes() {
-        return station1StayTimes;
-    }
-    public Tally getStation2StayTimes() {
-        return station2StayTimes;
-    }
-    public Tally getCarRentalStayTimes() {
-        return carRentalStayTimes;
-    }
-    public Tally getTerminal1PassengerTimes() {
-        return terminal1PassengerTimes;
-    }
-    public Tally getTerminal2PassengerTimes() {
-        return terminal2PassengerTimes;
-    }
-    public Tally getCarRentalPassengerTimes() {
-        return carRentalPassengerTimes;
-    }
-    public Histogram getAvgPassengerStayTimes() {
-        return avgPassengerStayTimes;
+
+    public Histogram getPassengerSystemTimeSeries() {
+        return passengerSystemTimeSeries;
     }
     public Histogram getBusPassengerTimeSeries() {
         return busPassengerTimeSeries;

@@ -20,6 +20,7 @@ public class PassengerArrivalEvent extends Event<PassengerEntity> {
     public void eventRoutine(PassengerEntity passengerEntity) {
         StationEntity station = IdManager.getStation(passengerEntity.getArrivalId());
         meinModel.sendTraceNote("Passenger " + passengerEntity.getName() + " arrives at " + station.getName());
+        passengerEntity.setArrivalTime(meinModel.presentTime());
 
         BusEntity bus = meinModel.getBus();
         if (!bus.isDriving() && bus.getCurrentStationId() == passengerEntity.getArrivalId() && bus.getPassengerCount() < bus.getCapacity()) {
@@ -27,6 +28,7 @@ public class PassengerArrivalEvent extends Event<PassengerEntity> {
             if (bus.getPassengerCount() == bus.getCapacity()) {
                 meinModel.currentBusLeave.reSchedule(meinModel.presentTime());
             }
+            station.recordPassengerWaitTime(0);
         } else {
             station.enqueuePassenger(passengerEntity);
         }

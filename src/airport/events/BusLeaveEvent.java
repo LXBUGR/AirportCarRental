@@ -1,11 +1,11 @@
 package airport.events;
 
+import airport.AirportCarRentalModel;
 import airport.IdManager;
+import airport.entities.StationEntity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
-import airport.entities.StationEntity;
 import airport.entities.BusEntity;
-import airport.AirportCarRentalModel;
 import desmoj.core.simulator.TimeSpan;
 
 public class BusLeaveEvent extends Event<StationEntity> {
@@ -21,17 +21,21 @@ public class BusLeaveEvent extends Event<StationEntity> {
         BusEntity bus = meinModel.getBus();
         int nextStationId = bus.getNextStationId();
 
-        // Ankunft des Buses am nächsten Station planen
+        // Calculate and update wait time
+        double waitTime = meinModel.presentTime().getTimeAsDouble() - bus.getLastRoundStartTime();
+        meinModel.getBusWaitTimes().update(waitTime);
+
+        // Schedule the bus arrival at the next station
         StationEntity nextStation = IdManager.getStation(nextStationId);
         double travelTime = bus.getNextStationDriveTime();
 
-        // Neue ereignis für die Busankunft an der nächsten Station
+        // Schedule a new BusArrivalEvent for the next station
         BusArrivalEvent arrivalEvent = new BusArrivalEvent(meinModel, "Bus Arrival Event", true);
         arrivalEvent.schedule(nextStation, new TimeSpan(travelTime));
         bus.setDriving(true);
         meinModel.currentBusLeave = null;
 
-        // Bus abfahrt loggen
+        // Log bus departure
         meinModel.sendTraceNote("Bus departs from " + stationEntity.getName() + " to " + nextStation.getName());
     }
 }

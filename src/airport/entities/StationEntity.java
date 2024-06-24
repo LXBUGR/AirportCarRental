@@ -1,8 +1,7 @@
 package airport.entities;
 
-import desmoj.core.simulator.Entity;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.Queue;
+import desmoj.core.simulator.*;
+import airport.AirportCarRentalModel;
 
 public class StationEntity extends Entity {
     private final Queue<PassengerEntity> queue;
@@ -16,11 +15,13 @@ public class StationEntity extends Entity {
     public PassengerEntity dequeuePassenger() {
         PassengerEntity nextPassenger = queue.first();
         queue.remove(nextPassenger);
+        sendTraceNote("Passenger dequeued: " + nextPassenger.getName() + " from " + getName());
         return nextPassenger;
     }
 
     public void enqueuePassenger(PassengerEntity passenger) {
         queue.insert(passenger);
+        sendTraceNote("Passenger enqueued: " + passenger.getName() + " at " + getName());
     }
 
     public boolean queueEmpty() {
@@ -33,5 +34,10 @@ public class StationEntity extends Entity {
 
     public int getId() {
         return id;
+    }
+
+    public void recordPassengerWaitTime(double waitTime) {
+        ((AirportCarRentalModel) getModel()).getStationWaitTimes().update(waitTime);
+        sendTraceNote("Passenger wait time recorded: " + waitTime + " at " + getName());
     }
 }

@@ -33,12 +33,13 @@ public class AirportCarRentalModel extends Model {
     private Tally stationWaitTimeT1; //Wartezeit der Passagiere in jeder Warteschlange Terminal 1
     private Tally stationWaitTimeT2; //Wartezeit der Passagiere in jeder Warteschlange Terminal 2
     private Tally stationWaitTimeC1; //Wartezeit der Passagiere in jeder Warteschlange CarRental 1
-    private Tally passengerSystemTimes; //Dauer einer Person im System
+    private Tally passengerSystemTimeT1; //Dauer einer Person im System (Angekommen Terminal 1)
+    private Tally passengerSystemTimeT2; //Dauer einer Person im System (Angekommen Terminal 1)
+    private Tally passengerSystemTimeC1; //Dauer einer Person im System (Angekommen Terminal 1)
     private Tally busPassengerCount;  //Anzahl der Passagiere im Bus
 
     // Histograms
     private Histogram passengerSystemTimeSeries;  // Balkendiagramm der Verweildauer der Passagiere im System
-    private Histogram busPassengerTimeSeries; // TODO Liniendiagramm der Anzahl der Passagiere im Bus über die Zeit
     private Histogram passengerCountPerRide;  // Histogramm der Passagieranzahl pro Busfahrt
 
     public BusLeaveEvent currentBusLeave;
@@ -70,7 +71,7 @@ public class AirportCarRentalModel extends Model {
         // Initialize distributions
         arrivalRateTerminal = new ContDistNormal(this, "Arrival Rate Terminal", 60, 2, true, true);
         arrivalRateRental = new ContDistNormal(this, "Arrival Rate Rental Station", 2, 0.5, true, true);
-        travelTime = new ContDistNormal(this, "Travel Time", 5, 0.5, true, true);
+        travelTime = new ContDistNormal(this, "Travel Time", 5, 0.3, true, true);
         flightPassengers = new ContDistNormal(this, "Amount Passengers on flight", 20, 5, true, true);
 
         arrivalRateTerminal.setNonNegative(true);
@@ -106,13 +107,14 @@ public class AirportCarRentalModel extends Model {
         stationWaitTimeT1 = new Tally(this, "Station Wait Time Terminal 1",true, true);
         stationWaitTimeT2 = new Tally(this, "Station Wait Time Terminal 2", true, true);
         stationWaitTimeC1 = new Tally(this, "Station Wait Time CarRental 1", true, true);
-        passengerSystemTimes = new Tally(this, "Passenger System Times", true, true);
+        passengerSystemTimeT1 = new Tally(this, "Passenger System Times Terminal 1", true, true);
+        passengerSystemTimeT2 = new Tally(this, "Passenger System Times Terminal 2", true, true);
+        passengerSystemTimeC1 = new Tally(this, "Passenger System Times CarRental 1", true, true);
         busPassengerCount = new Tally(this, "Bus Passenger Count", true, true);  // Histogram für Anzahl der Passagiere im Bus
 
         // Initialize new histograms
         passengerSystemTimeSeries = new Histogram(this, "Passenger Stay Times", 0, 100, 10, true, true);
-        busPassengerTimeSeries = new Histogram(this, "Bus Passenger Time Series", 4800, 0, 20, true, true); // Zeitreihe der Passagierzahlen (minütliche Auflösung)
-        passengerCountPerRide = new Histogram(this, "Passenger Count Per Ride", 20, 0, 20, true, true);
+        passengerCountPerRide = new Histogram(this, "Passenger Count Per Ride", 20, 0, 10, true, true);
     }
 
     public ContDist getArrivalRateTerminal() {
@@ -150,8 +152,13 @@ public class AirportCarRentalModel extends Model {
             default -> throw new RuntimeException("cannot get station wait time Tally for station id " + id + ", station does not exist");
         };
     }
-    public Tally getPassengerSystemTimes() {
-        return passengerSystemTimes;
+    public Tally getPassengerSystemTimes(int id) {
+        return switch (id) {
+            case 1 -> passengerSystemTimeT1;
+            case 2 -> passengerSystemTimeT2;
+            case 3 -> passengerSystemTimeC1;
+            default -> throw new RuntimeException("cannot get system time Tally for station id " + id + ", station does not exist");
+        };
     }
     public Tally getBusPassengerCount() {
         return busPassengerCount;
@@ -160,9 +167,7 @@ public class AirportCarRentalModel extends Model {
     public Histogram getPassengerSystemTimeSeries() {
         return passengerSystemTimeSeries;
     }
-    public Histogram getBusPassengerTimeSeries() {
-        return busPassengerTimeSeries;
-    }
+
     public Histogram getPassengerCountPerRide() {
         return passengerCountPerRide;
     }

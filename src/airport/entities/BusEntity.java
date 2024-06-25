@@ -44,7 +44,7 @@ public class BusEntity extends Entity {
         passengerList.removeIf(passenger -> {
             if (passenger.getDestinationId() == currentStationId) {
                 double systemTime = currentTime - passenger.getArrivalTime().getTimeAsDouble();
-                model.getPassengerSystemTimes().update(systemTime);
+                model.getPassengerSystemTimes(passenger.getArrivalId()).update(systemTime);
                 model.getPassengerSystemTimeSeries().update(systemTime);
                 return true;
             }

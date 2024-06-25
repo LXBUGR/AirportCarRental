@@ -2,13 +2,14 @@ package airport.events;
 
 import airport.AirportCarRentalModel;
 import airport.IdManager;
+import airport.entities.BusStationEntity;
 import airport.entities.StationEntity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import airport.entities.BusEntity;
 import desmoj.core.simulator.TimeSpan;
 
-public class BusLeaveEvent extends Event<StationEntity> {
+public class BusLeaveEvent extends Event<BusStationEntity> {
     private final AirportCarRentalModel meinModel;
 
     public BusLeaveEvent(Model model, String name, boolean showInTrace) {
@@ -17,30 +18,29 @@ public class BusLeaveEvent extends Event<StationEntity> {
     }
 
     @Override
-    public void eventRoutine(StationEntity stationEntity) {
-        BusEntity bus = meinModel.getBus();
-
-        // Calculate and update wait time
-        double waitTime = meinModel.presentTime().getTimeAsDouble() - bus.getLastArrivalTime();
-        meinModel.getBusWaitTimes(bus.getCurrentStationId()).update(waitTime);
+    public void eventRoutine(BusStationEntity busStation) {
+        BusEntity bus = busStation.getBus();
+        StationEntity nextStation = IdManager.getStation(bus.getNextStationId());
 
         // Schedule the bus arrival at the next station
-        StationEntity nextStation = IdManager.getStation(bus.getNextStationId());
         double travelTime = bus.getNextStationDriveTime();
+
+        // Log bus departure
+        meinModel.sendTraceNote(bus.getName() +  " departs from " + busStation.getStation().getName() + " to " + nextStation.getName());
 
         // Schedule a new BusArrivalEvent for the next station
         BusArrivalEvent arrivalEvent = new BusArrivalEvent(meinModel, "Bus Arrival Event", true);
-        arrivalEvent.schedule(nextStation, new TimeSpan(travelTime));
+        arrivalEvent.schedule(busStation.setStation(nextStation), new TimeSpan(travelTime));
         bus.setDriving(true);
-        meinModel.currentBusLeave = null;
+        meinModel.currentBusLeaveEvents.put(bus.getId(), null);
 
-        //update passengerCount Tally und Histogramm
+        //update Tallies und Histogramms
         meinModel.getBusPassengerCount().update(bus.getPassengerCount());
         meinModel.getPassengerCountPerRide().update(bus.getPassengerCount());
+        double waitTime = meinModel.presentTime().getTimeAsDouble() - bus.getLastArrivalTime();
+        meinModel.getBusWaitTimes(bus.getCurrentStationId()).update(waitTime);
 
-        // Log bus departure
-        meinModel.sendTraceNote("Bus departs from " + stationEntity.getName() + " to " + nextStation.getName());
-        if(bus.getCurrentStationId() == 1) {
+        if(bus.getCurrentStationId() == bus.getStartStationId()) {
             bus.startRound();
         }
     }

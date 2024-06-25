@@ -12,7 +12,6 @@ public class PassengerEntity extends Entity {
         super(owner, name, showInTrace);
         this.arrivalId = arrivalId;
         this.destinationId = destinationId;
-        //this.arrivalTime = presentTime(); // Save the time when the passenger is created
     }
 
     public int getArrivalId() {

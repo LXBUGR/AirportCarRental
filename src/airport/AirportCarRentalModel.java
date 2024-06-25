@@ -1,6 +1,7 @@
 package airport;
 
 import airport.entities.BusEntity;
+import airport.entities.BusStationEntity;
 import airport.entities.CarRentalEntity;
 import airport.entities.TerminalEntity;
 import airport.events.BusLeaveEvent;
@@ -12,7 +13,9 @@ import desmoj.core.statistic.Tally;
 import desmoj.core.statistic.Histogram;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AirportCarRentalModel extends Model {
 
@@ -23,7 +26,9 @@ public class AirportCarRentalModel extends Model {
     private ContDist flightPassengers;
 
     // Bus and station statistics
-    private BusEntity bus;
+    private final BusEntity[] busArray;
+    public Map<Integer, BusLeaveEvent> currentBusLeaveEvents;
+    public int busWaitingTime;
 
     //Tallies
     private Tally busRoundTimes; //Maximale, Mittlere & Minimale Dauer einer Runde des Busses
@@ -42,10 +47,11 @@ public class AirportCarRentalModel extends Model {
     private Histogram passengerSystemTimeSeries;  // Balkendiagramm der Verweildauer der Passagiere im System
     private Histogram passengerCountPerRide;  // Histogramm der Passagieranzahl pro Busfahrt
 
-    public BusLeaveEvent currentBusLeave;
-
-    public AirportCarRentalModel(Model owner, String name, boolean showInReport, boolean showInTrace) {
+    public AirportCarRentalModel(Model owner, String name, boolean showInReport, boolean showInTrace, int busAmount, int busWaitingTime) {
         super(owner, name, showInReport, showInTrace);
+        busArray = new BusEntity[busAmount];
+        currentBusLeaveEvents = new HashMap<>();
+        this.busWaitingTime = busWaitingTime;
     }
 
     public String description() {
@@ -53,8 +59,10 @@ public class AirportCarRentalModel extends Model {
     }
 
     public void doInitialSchedules() {
-        BusLeaveEvent initialBusLeave = new BusLeaveEvent(this, "Initial Bus Leave", true);
-        initialBusLeave.schedule(IdManager.getStation(bus.getCurrentStationId()), new TimeSpan(bus.getNextStationDriveTime()));
+        for(BusEntity bus : busArray) {
+            BusLeaveEvent initialBusLeave = new BusLeaveEvent(this, "Initial Bus Leave", true);
+            initialBusLeave.schedule(new BusStationEntity(this, "BusStationEntity", false ,bus, IdManager.getStation(bus.getCurrentStationId())), new TimeSpan(busWaitingTime));
+        }
 
         FlightArrivalEvent flightArrival1 = new FlightArrivalEvent(this, "Flight Arrival Terminal 1", true);
         flightArrival1.schedule((TerminalEntity) IdManager.getStation(1), new TimeSpan(arrivalRateTerminal.sample()));
@@ -78,7 +86,7 @@ public class AirportCarRentalModel extends Model {
         arrivalRateRental.setNonNegative(true);
         travelTime.setNonNegative(true);
 
-        // Initialize entities
+        // Initialize stations
         List<CarRentalEntity> carRentals = new ArrayList<>();
         List<TerminalEntity> terminals = new ArrayList<>();
 
@@ -90,14 +98,19 @@ public class AirportCarRentalModel extends Model {
         terminals.add(terminal1);
         terminals.add(terminal2);
 
-        IdManager.initializeIds(terminals, carRentals);
+        IdManager.initializeStationIds(terminals, carRentals);
 
-        bus = new BusEntity(this, "Bus", true, 20);
-        bus.setCurrentStationId(terminal1.getId());
-
-        bus.addSchedule(1, 2, 5);
-        bus.addSchedule(2, 3, 5);
-        bus.addSchedule(3, 1, 5);
+        //Initialize buses
+        for(int i = 0; i < busArray.length; i++) {
+            int startStation = (i % 3) + 1;
+            BusEntity bus = new BusEntity(this, "Bus " + (i+1), true, i + 1, 20, startStation);
+            busArray[i] = bus;
+            bus.setCurrentStationId(startStation);
+            bus.addSchedule(1, 2, 5);
+            bus.addSchedule(2, 3, 5);
+            bus.addSchedule(3, 1, 5);
+            IdManager.addBus(bus);
+        }
 
         // Initialize tallies and histograms for reporting
         busRoundTimes = new Tally(this, "Bus Round Times", true, true);
@@ -129,8 +142,8 @@ public class AirportCarRentalModel extends Model {
     public ContDist getFlightPassengers() {
         return flightPassengers;
     }
-    public BusEntity getBus() {
-        return bus;
+    public BusEntity[] getBusses() {
+        return busArray;
     }
 
     public Tally getBusRoundTimes() {
@@ -172,13 +185,16 @@ public class AirportCarRentalModel extends Model {
         return passengerCountPerRide;
     }
 
-    public void sendTraceNoteWithPassengers(String note) {
-        sendTraceNote(note + " | Passengers in Bus: " + bus.getPassengerCount());
+    public void sendTraceNoteWithPassengers(String note, int passengerCount) {
+        sendTraceNote(note + " | Passengers in Bus: " + passengerCount);
     }
 
     public static void main(String[] args) {
+        int busAmount = 2;
+        int busWaitingTime = 3;
+
         Experiment experiment = new Experiment("Airport Rental Experiment");
-        AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true);
+        AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true, busAmount, busWaitingTime);
         model.connectToExperiment(experiment);
 
         experiment.setShowProgressBar(false);

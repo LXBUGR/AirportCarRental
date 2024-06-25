@@ -16,7 +16,10 @@ public class FlightArrivalEvent extends Event<TerminalEntity> {
 
     @Override
     public void eventRoutine(TerminalEntity terminal) {
+        //Calculate amount of Passengers
         int passengerCount = (int) Math.round(meinModel.getFlightPassengers().sample());
+
+        //For each Passenger schedule arrival at bus station
         for(int i = 0; i < passengerCount; i++) {
             PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier Terminal " + terminal.getId(), true, terminal.getId(), IdManager.getRandomCarRentalId());
             PassengerArrivalEvent arrivalEvent = new PassengerArrivalEvent(meinModel, "Passenger arrived at busstop of " + terminal.getName(), true);
@@ -24,6 +27,7 @@ public class FlightArrivalEvent extends Event<TerminalEntity> {
         }
         meinModel.sendTraceNote(  passengerCount + " Passengers " + " arrive at " + terminal.getName() + " from a flight at " + presentTime());
 
+        //Schedule next FlightArrivalEvent
         FlightArrivalEvent arrivalEvent = new FlightArrivalEvent(meinModel, "Flight Arrival" + terminal.getName(), true);
         arrivalEvent.schedule(terminal, new TimeSpan(meinModel.getArrivalRateTerminal().sample()));
     }

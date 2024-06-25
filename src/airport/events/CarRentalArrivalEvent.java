@@ -18,10 +18,12 @@ public class CarRentalArrivalEvent extends Event<CarRentalEntity> {
 
     @Override
     public void eventRoutine(CarRentalEntity carRentalEntity) {
+        //Create passenger with random Terminal destination and schedule arrival at bus station
         PassengerEntity passenger = new PassengerEntity(meinModel, "Passagier CarRental", true, carRentalEntity.getId(), IdManager.getRandomTerminalId());
         PassengerArrivalEvent event = new PassengerArrivalEvent(meinModel, "Passenger arrived at busstop of " + carRentalEntity.getName() + " at " + meinModel.presentTime(), true);
         event.schedule(passenger, new TimeSpan(1));
 
+        //Schedule next CarRentalArrivalEvent
         CarRentalArrivalEvent arrivalEvent = new CarRentalArrivalEvent(meinModel, "Car Rental Arrival", true);
         arrivalEvent.schedule(carRentalEntity, new TimeSpan(meinModel.getArrivalRateRental().sample()));
         meinModel.sendTraceNote("Car Rental Arrival Event scheduled for " + carRentalEntity.getName());

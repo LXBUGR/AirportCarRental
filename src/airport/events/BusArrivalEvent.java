@@ -1,6 +1,6 @@
 package airport.events;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+import airport.entities.BusStationEntity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import airport.entities.StationEntity;
@@ -10,7 +10,7 @@ import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import airport.entities.PassengerEntity;
 
-public class BusArrivalEvent extends Event<StationEntity> {
+public class BusArrivalEvent extends Event<BusStationEntity> {
     private final AirportCarRentalModel meinModel;
 
     public BusArrivalEvent(Model model, String name, boolean showInTrace) {
@@ -19,35 +19,41 @@ public class BusArrivalEvent extends Event<StationEntity> {
     }
 
     @Override
-    public void eventRoutine(StationEntity nextStation) {
+    public void eventRoutine(BusStationEntity busStation) {
         TimeInstant arrivalTime = meinModel.presentTime();
-        BusEntity bus = meinModel.getBus();
-        double waitingTime = 0;
+        BusEntity bus = busStation.getBus();
+        StationEntity newStation = busStation.getStation();
+        int waitingTime = 0;
 
-        bus.setCurrentStationId(nextStation.getId());
+        meinModel.sendTraceNoteWithPassengers(bus.getName() + " arrives at " + newStation.getName(), bus.getPassengerCount());
+
+        //update station related bus state
+        bus.setCurrentStationId(newStation.getId());
         bus.setDriving(false);
         bus.setLastArrivalTime(arrivalTime.getTimeAsDouble());
-        meinModel.sendTraceNoteWithPassengers("Bus arrives at " + nextStation.getName());
-
-        bus.removePassengers(); //remove passengers; updates passengerSystemTimes
-
-        while (bus.getPassengerCount() < bus.getCapacity() && !nextStation.queueEmpty()) {
-            PassengerEntity passenger = nextStation.dequeuePassenger();
-            bus.addPassenger(passenger);
-            double waitTime = arrivalTime.getTimeAsDouble() - passenger.getArrivalTime().getTimeAsDouble();
-            nextStation.recordPassengerWaitTime(waitTime);  //update passengerWaitTime
-        }
-
-        if(bus.getPassengerCount() < bus.getCapacity()) {
-            waitingTime = 5.0; // Warte dauer des busses beim station
-        }
-
-        BusLeaveEvent leaveEvent = new BusLeaveEvent(meinModel, "Bus Leave Event", true);
-        leaveEvent.schedule(nextStation, new TimeSpan(waitingTime));
-        meinModel.currentBusLeave = leaveEvent;
-
-        if(bus.getCurrentStationId() == 1) {
+        if(bus.getCurrentStationId() == bus.getStartStationId()) {
             bus.endRound();
         }
+
+        //remove Passengers & update passengerSystemTimes
+        bus.removePassengers();
+
+        //enqueue Passengers & Update Passenger waiting times
+        while (bus.getPassengerCount() < bus.getCapacity() && !newStation.queueEmpty()) {
+            PassengerEntity passenger = newStation.dequeuePassenger();
+            bus.addPassenger(passenger);
+            double waitTime = arrivalTime.getTimeAsDouble() - passenger.getArrivalTime().getTimeAsDouble();
+            newStation.recordPassengerWaitTime(waitTime);  //update passengerWaitTime
+        }
+
+        //Waiting time if there's space
+        if(bus.getPassengerCount() < bus.getCapacity()) {
+            waitingTime = meinModel.busWaitingTime;
+        }
+
+        //Schedule Leave Event
+        BusLeaveEvent leaveEvent = new BusLeaveEvent(meinModel, "Bus Leave Event", true);
+        leaveEvent.schedule(busStation, new TimeSpan(waitingTime));
+        meinModel.currentBusLeaveEvents.put(bus.getId(), leaveEvent);
     }
 }

@@ -190,26 +190,81 @@ public class AirportCarRentalModel extends Model {
     }
 
     public static void main(String[] args) {
-        int busAmount = 2;
-        int busWaitingTime = 3;
+        int[] busAmounts = {1, 2};
+        int[] busWaitingTimes = {5, 4, 3};
+        int repetitions = 10;
 
-        Experiment experiment = new Experiment("Airport Rental Experiment");
-        AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true, busAmount, busWaitingTime);
-        model.connectToExperiment(experiment);
+        for (int busAmount : busAmounts) {
+            for (int busWaitingTime : busWaitingTimes) {
+                // Accumulators for average calculations
+                double totalBusRoundTimes = 0;
+                double totalBusWaitTimeT1 = 0;
+                double totalBusWaitTimeT2 = 0;
+                double totalBusWaitTimeC1 = 0;
+                double totalStationWaitTimeT1 = 0;
+                double totalStationWaitTimeT2 = 0;
+                double totalStationWaitTimeC1 = 0;
+                double totalPassengerSystemTimeT1 = 0;
+                double totalPassengerSystemTimeT2 = 0;
+                double totalPassengerSystemTimeC1 = 0;
+                double totalBusPassengerCount = 0;
 
-        experiment.setShowProgressBar(false);
-        experiment.setShowProgressBarAutoclose(true);
+                double totalPassengerStayTimes = 0;
+                double totalPassengerCountRides = 0;
 
-        TimeInstant startTime = new TimeInstant(0.0);
-        TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
+                for (int i = 0; i < repetitions; i++) {
+                    Experiment experiment = new Experiment("Airport Rental Experiment");
+                    AirportCarRentalModel model = new AirportCarRentalModel(null, "Airport Rental Model", true, true, busAmount, busWaitingTime);
+                    model.connectToExperiment(experiment);
 
-        experiment.tracePeriod(startTime, endTime);
-        experiment.debugPeriod(startTime, endTime);
+                    experiment.setShowProgressBar(false);
+                    experiment.setShowProgressBarAutoclose(true);
 
-        experiment.stop(endTime);
+                    TimeInstant startTime = new TimeInstant(0.0);
+                    TimeInstant endTime = new TimeInstant(4800.0); // 80 Stunden
 
-        experiment.start();
-        experiment.report();
-        experiment.finish();
+                    experiment.tracePeriod(startTime, endTime);
+                    experiment.debugPeriod(startTime, endTime);
+
+                    experiment.stop(endTime);
+
+                    experiment.start();
+                    experiment.report();
+                    experiment.finish();
+
+                    totalBusRoundTimes += model.getBusRoundTimes().getMean();
+                    totalBusWaitTimeT1 += model.getBusWaitTimes(1).getMean();
+                    totalBusWaitTimeT2 += model.getBusWaitTimes(2).getMean();
+                    totalBusWaitTimeC1 += model.getBusWaitTimes(3).getMean();
+                    totalStationWaitTimeT1 += model.getStationWaitTimes(1).getMean();
+                    totalStationWaitTimeT2 += model.getStationWaitTimes(2).getMean();
+                    totalStationWaitTimeC1 += model.getStationWaitTimes(3).getMean();
+                    totalPassengerSystemTimeT1 += model.getPassengerSystemTimes(1).getMean();
+                    totalPassengerSystemTimeT2 += model.getPassengerSystemTimes(2).getMean();
+                    totalPassengerSystemTimeC1 += model.getPassengerSystemTimes(3).getMean();
+                    totalBusPassengerCount += model.getBusPassengerCount().getMean();
+
+                    // Manually track histogram data for averaging
+                    totalPassengerStayTimes += model.getPassengerSystemTimeSeries().getMean();
+                    totalPassengerCountRides += model.getPassengerCountPerRide().getMean();
+                }
+
+                // Calculate averages
+                System.out.println("Average results for " + busAmount + " Bus(es) and " + busWaitingTime + " mins waiting time:");
+                System.out.println("Average Bus Round Times: " + totalBusRoundTimes / repetitions);
+                System.out.println("Average Bus Wait Time Terminal 1: " + totalBusWaitTimeT1 / repetitions);
+                System.out.println("Average Bus Wait Time Terminal 2: " + totalBusWaitTimeT2 / repetitions);
+                System.out.println("Average Bus Wait Time CarRental 1: " + totalBusWaitTimeC1 / repetitions);
+                System.out.println("Average Station Wait Time Terminal 1: " + totalStationWaitTimeT1 / repetitions);
+                System.out.println("Average Station Wait Time Terminal 2: " + totalStationWaitTimeT2 / repetitions);
+                System.out.println("Average Station Wait Time CarRental 1: " + totalStationWaitTimeC1 / repetitions);
+                System.out.println("Average Passenger System Time Terminal 1: " + totalPassengerSystemTimeT1 / repetitions);
+                System.out.println("Average Passenger System Time Terminal 2: " + totalPassengerSystemTimeT2 / repetitions);
+                System.out.println("Average Passenger System Time CarRental 1: " + totalPassengerSystemTimeC1 / repetitions);
+                System.out.println("Average Bus Passenger Count: " + totalBusPassengerCount / repetitions);
+                System.out.println("Average Passenger Stay Times: " + totalPassengerStayTimes / repetitions);
+                System.out.println("Average Passenger Count Per Ride: " + totalPassengerCountRides / repetitions);
+            }
+        }
     }
 }
